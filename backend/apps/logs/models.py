@@ -43,3 +43,56 @@ class LogFile(models.Model):
 
     def __str__(self):
         return f"{self.file_name} ({self.status})"
+    
+class LogEvent(models.Model):
+
+    LOG_LEVELS = [
+        ("DEBUG", "Debug"),
+        ("INFO", "Info"),
+        ("WARN", "Warning"),
+        ("ERROR", "Error"),
+        ("CRITICAL", "Critical"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    log_file = models.ForeignKey(
+        LogFile,
+        on_delete=models.CASCADE,
+        related_name="events"
+    )
+
+    timestamp = models.DateTimeField()
+
+    log_level = models.CharField(
+        max_length=10,
+        choices=LOG_LEVELS
+    )
+
+    service_name = models.CharField(max_length=100)
+
+    message = models.TextField()
+
+    raw_log = models.TextField()
+
+    event_hash = models.CharField(max_length=64)
+
+    is_anomaly = models.BooleanField(default=False)
+
+    incident = models.ForeignKey(
+        "incidents.Incident",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="events"
+    )
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["timestamp"]),
+            models.Index(fields=["log_level"]),
+            models.Index(fields=["service_name"]),
+        ]
+
+    def __str__(self):
+        return f"{self.log_level} - {self.service_name}"
