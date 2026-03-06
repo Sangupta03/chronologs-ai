@@ -22,6 +22,8 @@ class LogFile(models.Model):
         on_delete=models.CASCADE,
         related_name="log_files"
     )
+    
+    file = models.FileField(upload_to="logs/", null=True, blank=True)
 
     file_name = models.CharField(max_length=255)
 
