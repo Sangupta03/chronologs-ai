@@ -41,6 +41,10 @@ class LogUploadView(APIView):
 
         log_file.status = "parsed"
         log_file.total_events = events_parsed
+        log_file.events_parsed = events_parsed
+        log_file.events_failed = events_failed
+        log_file.processing_time = processing_time
+
         log_file.save()
 
         return Response(

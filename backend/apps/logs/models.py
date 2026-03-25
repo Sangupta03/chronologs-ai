@@ -43,6 +43,10 @@ class LogFile(models.Model):
 
     total_events = models.IntegerField(default=0)
 
+    events_parsed = models.IntegerField(default=0)
+    events_failed = models.IntegerField(default=0)
+    processing_time = models.FloatField(default=0)
+
     def __str__(self):
         return f"{self.file_name} ({self.status})"
     
@@ -81,6 +85,9 @@ class LogEvent(models.Model):
 
     is_anomaly = models.BooleanField(default=False)
 
+    cluster_id = models.IntegerField(null=True, blank=True)
+    is_anomaly = models.BooleanField(default=False)
+
     incident = models.ForeignKey(
         "incidents.Incident",
         on_delete=models.SET_NULL,
@@ -98,3 +105,5 @@ class LogEvent(models.Model):
 
     def __str__(self):
         return f"{self.log_level} - {self.service_name}"
+    
+    

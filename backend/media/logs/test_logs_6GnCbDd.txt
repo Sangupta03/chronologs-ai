@@ -1,0 +1,3 @@
+2026-03-07 12:01:33 ERROR payment-service Database connection timeout
+2026-03-07 12:01:34 INFO auth-service Login success
+2026-03-07 12:01:35 WARN payment-service Retry connection
