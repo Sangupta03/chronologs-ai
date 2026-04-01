@@ -37,6 +37,7 @@ class Incident(models.Model):
     event_count = models.IntegerField()
 
     created_at = models.DateTimeField(auto_now_add=True)
+    summary = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.title} ({self.severity})"

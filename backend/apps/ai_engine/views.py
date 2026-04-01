@@ -33,7 +33,8 @@ class AnalyzeLogsView(APIView):
         vectors, _ = vectorize_logs(messages)
 
         # 5️⃣ Cluster
-        labels, _ = cluster_logs(vectors, k = min(3, len(messages)))
+        k = max(1, min(2, len(messages)//2))
+        labels, _ = cluster_logs(vectors, k = k)
 
         # 6️⃣ Detect anomalies
         anomalies, _ = detect_anomalies(vectors)
