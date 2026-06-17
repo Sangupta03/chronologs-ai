@@ -9,17 +9,22 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-
+load_dotenv(BASE_DIR / ".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-a+tohov=x6s#t-g9c!)ns2!hopngyozxn&*@i4#e+q(w6*48k0'
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    'django-insecure-a+tohov=x6s#t-g9c!)ns2!hopngyozxn&*@i4#e+q(w6*48k0',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True
@@ -46,6 +51,7 @@ INSTALLED_APPS = [
     'apps.logs',
     'apps.incidents',
     'apps.ai_story',
+    'apps.ai_engine',
 ]
 
 MIDDLEWARE = [
@@ -64,7 +70,7 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.AllowAny",
+        "rest_framework.permissions.IsAuthenticated",
     ),
 }
 

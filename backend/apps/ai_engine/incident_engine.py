@@ -1,7 +1,9 @@
 from collections import defaultdict
 
+from apps.ai_story.gemini_client import generate_narrative
 from apps.incidents.models import Incident
-from .storytelling import generate_incident_summary
+from apps.logs.models import LogEvent
+from .storytelling import extract_incident_facts, render_rule_based_summary
 
 
 def create_incidents(log_file, events):
@@ -33,7 +35,11 @@ def create_incidents(log_file, events):
         start_time = min(e.timestamp for e in cluster_events)
         end_time = max(e.timestamp for e in cluster_events)
 
-        severity_score = (error_count + anomaly_count) / len(cluster_events)
+        flagged_count = sum(
+            1 for e in cluster_events
+            if e.log_level.strip().upper() == "ERROR" or e.is_anomaly
+        )
+        severity_score = flagged_count / len(cluster_events)
 
         if severity_score > 0.7:
             severity = "CRITICAL"
@@ -55,14 +61,18 @@ def create_incidents(log_file, events):
             event_count=len(cluster_events),
         )
 
-        # Generate summary
-        summary = generate_incident_summary(incident, cluster_events)
+        # Generate summary: rule-based facts feed the LLM narrative,
+        # falling back to the deterministic template if Gemini is
+        # unavailable/unconfigured/fails.
+        facts = extract_incident_facts(cluster_events)
+        summary = generate_narrative(incident, facts) or render_rule_based_summary(facts)
         incident.summary = summary
         incident.save()
 
         # Link events
         for e in cluster_events:
             e.incident = incident
+        LogEvent.objects.bulk_update(cluster_events, ["incident"])
 
         incidents_created += 1
 

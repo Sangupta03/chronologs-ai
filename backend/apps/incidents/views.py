@@ -10,7 +10,9 @@ class IncidentListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        incidents = Incident.objects.all().order_by("-created_at")
+        incidents = Incident.objects.filter(
+            log_file__user=request.user
+        ).order_by("-created_at")
 
         data = [
             {

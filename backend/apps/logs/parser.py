@@ -53,7 +53,7 @@ def parse_timestamp(ts):
     for fmt in formats:
         try:
             return datetime.strptime(ts, fmt)
-        except:
+        except ValueError:
             continue
 
     return None
@@ -107,7 +107,12 @@ def parse_log_file(log_file):
     events_parsed = 0
     events_failed = 0
 
-    with open(log_file.file.path, "r") as f:
+    try:
+        f = open(log_file.file.path, "r")
+    except OSError as exc:
+        raise ValueError(f"Could not read log file: {exc}") from exc
+
+    with f:
 
         for line in f:
 

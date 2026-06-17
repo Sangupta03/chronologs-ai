@@ -1,0 +1,6 @@
+
+2026-03-07 12:01:33 ERROR payment-service Database connection timeout
+2026-03-07 12:01:34 ERROR payment-service Database connection timeout
+2026-03-07 12:01:35 ERROR payment-service Database connection failed
+2026-03-07 12:01:36 INFO auth-service Login success
+2026-03-07 12:01:37 ERROR payment-service Connection refused

@@ -83,8 +83,6 @@ class LogEvent(models.Model):
 
     event_hash = models.CharField(max_length=64)
 
-    is_anomaly = models.BooleanField(default=False)
-
     cluster_id = models.IntegerField(null=True, blank=True)
     is_anomaly = models.BooleanField(default=False)
 

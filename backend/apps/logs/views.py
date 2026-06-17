@@ -35,7 +35,12 @@ class LogUploadView(APIView):
 
         start_time = time.time()
 
-        events_parsed, events_failed = parse_log_file(log_file)
+        try:
+            events_parsed, events_failed = parse_log_file(log_file)
+        except ValueError as exc:
+            log_file.status = "failed"
+            log_file.save()
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
         processing_time = round(time.time() - start_time, 2)
 

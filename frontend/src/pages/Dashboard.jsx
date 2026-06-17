@@ -2,17 +2,20 @@ import { useState } from "react";
 import API from "../services/api";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
+import { Sparkles, AlertTriangle } from "lucide-react";
 
 function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleAnalyze = async () => {
     const logId = localStorage.getItem("log_id");
+    setError("");
 
     if (!logId) {
-      alert("No log file found. Upload first.");
+      setError("No log file found. Upload one first.");
       return;
     }
 
@@ -20,77 +23,73 @@ function Dashboard() {
 
     try {
       const res = await API.post(`/ai/analyze/${logId}/`);
-
       setResult(res.data);
-
     } catch (err) {
-      alert("Analysis failed ❌");
+      const detail =
+        err.response?.data?.error ||
+        JSON.stringify(err.response?.data) ||
+        err.message;
+      setError(`Analysis failed: ${detail}`);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
     <Layout>
-    <div className="min-h-screen bg-slate-900 text-white p-8">
+      <h1 className="text-2xl font-semibold mb-6">Dashboard</h1>
 
-      <h1 className="text-3xl font-bold mb-6">
-        Dashboard 📊
-      </h1>
-
-      {/* Analyze Button */}
       <button
         onClick={handleAnalyze}
-        className="bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-lg font-semibold"
+        disabled={loading}
+        className="flex items-center gap-2 bg-accent-600 hover:bg-accent-700 disabled:opacity-60 text-white px-6 py-3 rounded-lg font-semibold transition"
       >
+        <Sparkles size={18} />
         {loading ? "Analyzing..." : "Analyze Logs"}
       </button>
 
-      {/* Results */}
-      {result && (
-        <div className="mt-8 space-y-4">
+      {error && (
+        <div className="mt-4 flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
+          <AlertTriangle size={16} />
+          {error}
+        </div>
+      )}
 
-          <div className="bg-slate-800 p-4 rounded-lg">
+      {result && (
+        <div className="mt-8 space-y-4 max-w-xl">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-lg">
             <p><strong>Total Events:</strong> {result.total_events}</p>
           </div>
 
-          <div className="bg-slate-800 p-4 rounded-lg">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-lg">
             <p><strong>Incidents Created:</strong> {result.incidents_created}</p>
           </div>
 
-          <div className="bg-slate-800 p-4 rounded-lg">
-            <p><strong>Clusters:</strong></p>
-            <div className="mt-2 space-y-2">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-lg">
+            <p className="mb-2"><strong>Clusters:</strong></p>
+            <div className="space-y-2">
               {Object.entries(result.clusters).map(([key, value]) => (
                 <div
                   key={key}
-                  className="bg-slate-700 p-2 rounded flex justify-between"
+                  className="bg-slate-100 dark:bg-slate-800 p-2 rounded flex justify-between text-sm"
                 >
                   <span>Cluster {key}</span>
                   <span>{value} events</span>
                 </div>
               ))}
             </div>
-            {/* <pre className="text-sm mt-2">
-              {JSON.stringify(result.clusters, null, 2)}
-            </pre> */}
           </div>
 
-          {/* Go to incidents */}
           <button
             onClick={() => navigate("/incidents")}
-            className="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-lg font-semibold"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg font-semibold transition"
           >
-            View Incidents 🚨
+            View Incidents
           </button>
-
         </div>
       )}
-
-    </div>
     </Layout>
   );
 }
 
 export default Dashboard;
-
