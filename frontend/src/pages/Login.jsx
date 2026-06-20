@@ -20,6 +20,7 @@ function Login() {
     try {
       const res = await API.post("/auth/login/", { email, password });
       localStorage.setItem("token", res.data.access);
+      localStorage.setItem("refresh_token", res.data.refresh);
       navigate("/upload");
     } catch (err) {
       const detail =
