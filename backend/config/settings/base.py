@@ -45,6 +45,9 @@ INSTALLED_APPS = [
 
     # Third party
     'rest_framework',
+    'django_filters',
+
+    'rest_framework_simplejwt.token_blacklist',
 
     # Local apps
     'apps.accounts',
@@ -72,6 +75,17 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+    "DEFAULT_THROTTLE_CLASSES": (
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ),
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "20/minute",
+        "user": "120/minute",
+        "auth": "5/minute",
+    },
 }
 
 ROOT_URLCONF = 'config.urls'
@@ -132,6 +146,8 @@ from datetime import timedelta
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
 }
 
 # Static files (CSS, JavaScript, Images)
