@@ -3,64 +3,88 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.logs.models import LogEvent, LogFile
-from .vectorizer import vectorize_logs
-from .clustering import cluster_logs
+from .embeddings import search_index
+from .tasks import analyze_log_file
 
-from .anomaly import detect_anomalies
-from .incident_engine import create_incidents
+
 class AnalyzeLogsView(APIView):
 
     permission_classes = [IsAuthenticated]
 
     def post(self, request, log_file_id):
 
-        # 1️⃣ Get LogFile
         try:
             log_file = LogFile.objects.get(id=log_file_id, user=request.user)
         except LogFile.DoesNotExist:
             return Response({"error": "Log file not found"}, status=404)
 
-        # 2️⃣ Fetch events
-        events = LogEvent.objects.filter(log_file=log_file)
+        analyze_log_file.delay(str(log_file.id))
 
-        if not events.exists():
-            return Response({"error": "No events found"}, status=400)
+        return Response(
+            {"log_file_id": str(log_file.id), "status": "analyzing"},
+            status=202,
+        )
 
-        # 3️⃣ Extract messages
-        messages = [event.message for event in events]
 
-        # 4️⃣ Vectorize
-        vectors, _ = vectorize_logs(messages)
+class AnalysisStatusView(APIView):
 
-        # 5️⃣ Cluster
-        k = max(1, min(8, len(messages)//15))
-        labels, _ = cluster_logs(vectors, k = k)
+    permission_classes = [IsAuthenticated]
 
-        # 6️⃣ Detect anomalies
-        anomalies, _ = detect_anomalies(vectors)
+    def get(self, request, log_file_id):
+        try:
+            log_file = LogFile.objects.get(id=log_file_id, user=request.user)
+        except LogFile.DoesNotExist:
+            return Response({"error": "Log file not found"}, status=404)
 
-        # 7️⃣ Save cluster_id + anomaly
-        for event, label, anomaly in zip(events, labels, anomalies):
-            event.cluster_id = int(label)
-            event.is_anomaly = bool(anomaly)
+        return Response(
+            {
+                "log_file_id": str(log_file.id),
+                "status": log_file.status,
+                "result": log_file.analysis_result,
+                "error": log_file.analysis_error,
+            }
+        )
 
-        LogEvent.objects.bulk_update(events, ["cluster_id", "is_anomaly"])
 
-        # 8️⃣ Refresh events from DB
-        events = LogEvent.objects.filter(log_file=log_file)
+class SemanticSearchView(APIView):
 
-        # 9️⃣ Create incidents
-        incident_count = create_incidents(log_file, events)
+    permission_classes = [IsAuthenticated]
 
-        # Prepare response
-        cluster_counts = {}
-        for label in labels:
-            label = int(label)
-            cluster_counts[label] = cluster_counts.get(label, 0) + 1
+    def get(self, request, log_file_id):
+        try:
+            log_file = LogFile.objects.get(id=log_file_id, user=request.user)
+        except LogFile.DoesNotExist:
+            return Response({"error": "Log file not found"}, status=404)
 
-        return Response({
-            "status": "analysis completed",
-            "total_events": len(messages),
-            "clusters": cluster_counts,
-            "incidents_created": incident_count
-        })
+        query = request.query_params.get("q", "").strip()
+        if not query:
+            return Response({"error": "Missing query parameter 'q'"}, status=400)
+
+        matches = search_index(str(log_file.id), query, top_k=10)
+        if matches is None:
+            return Response(
+                {"error": "No search index available for this log file yet"},
+                status=400,
+            )
+
+        events_by_id = {
+            str(e.id): e
+            for e in LogEvent.objects.filter(
+                log_file=log_file, id__in=[m[0] for m in matches]
+            )
+        }
+
+        results = [
+            {
+                "event_id": event_id,
+                "distance": distance,
+                "timestamp": events_by_id[event_id].timestamp,
+                "log_level": events_by_id[event_id].log_level,
+                "service_name": events_by_id[event_id].service_name,
+                "message": events_by_id[event_id].message,
+            }
+            for event_id, distance in matches
+            if event_id in events_by_id
+        ]
+
+        return Response({"query": query, "results": results})

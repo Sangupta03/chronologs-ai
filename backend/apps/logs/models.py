@@ -47,6 +47,9 @@ class LogFile(models.Model):
     events_failed = models.IntegerField(default=0)
     processing_time = models.FloatField(default=0)
 
+    analysis_result = models.JSONField(null=True, blank=True)
+    analysis_error = models.TextField(null=True, blank=True)
+
     def __str__(self):
         return f"{self.file_name} ({self.status})"
     

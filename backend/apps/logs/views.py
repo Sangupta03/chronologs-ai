@@ -1,15 +1,14 @@
 #from django.shortcuts import render
 
 # Create your views here.
-import time
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import LogFile, LogEvent
+from .models import LogFile
 from .serializers import LogUploadSerializer
-from .parser import parse_log_file
+from .tasks import process_log_file
 
 
 class LogUploadView(APIView):
@@ -33,32 +32,36 @@ class LogUploadView(APIView):
             status="processing"
         )
 
-        start_time = time.time()
-
-        try:
-            events_parsed, events_failed = parse_log_file(log_file)
-        except ValueError as exc:
-            log_file.status = "failed"
-            log_file.save()
-            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
-
-        processing_time = round(time.time() - start_time, 2)
-
-        log_file.status = "parsed"
-        log_file.total_events = events_parsed
-        log_file.events_parsed = events_parsed
-        log_file.events_failed = events_failed
-        log_file.processing_time = processing_time
-
-        log_file.save()
+        process_log_file.delay(str(log_file.id))
 
         return Response(
             {
                 "log_file_id": str(log_file.id),
                 "file_name": log_file.file_name,
                 "status": log_file.status,
-                "events_parsed": events_parsed,
-                "events_failed": events_failed,
-                "processing_time_seconds": processing_time,
+            },
+            status=status.HTTP_202_ACCEPTED,
+        )
+
+
+class LogFileStatusView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, log_file_id):
+        try:
+            log_file = LogFile.objects.get(id=log_file_id, user=request.user)
+        except LogFile.DoesNotExist:
+            return Response({"error": "Log file not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response(
+            {
+                "log_file_id": str(log_file.id),
+                "file_name": log_file.file_name,
+                "status": log_file.status,
+                "total_events": log_file.total_events,
+                "events_parsed": log_file.events_parsed,
+                "events_failed": log_file.events_failed,
+                "processing_time_seconds": log_file.processing_time,
             }
         )

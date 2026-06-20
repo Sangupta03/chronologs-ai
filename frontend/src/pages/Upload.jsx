@@ -3,11 +3,13 @@ import API from "../services/api";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { UploadCloud, FileText } from "lucide-react";
+import { pollUntil } from "../services/poll";
 
 function Upload() {
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [stage, setStage] = useState("");
   const navigate = useNavigate();
 
   const handleUpload = async (e) => {
@@ -23,13 +25,26 @@ function Upload() {
     formData.append("file", file);
 
     setLoading(true);
+    setStage("Uploading...");
 
     try {
       const res = await API.post("/logs/upload/", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      localStorage.setItem("log_id", res.data.log_file_id);
+      const logId = res.data.log_file_id;
+      localStorage.setItem("log_id", logId);
+
+      setStage("Parsing log file...");
+      await pollUntil(
+        async () => (await API.get(`/logs/${logId}/status/`)).data,
+        (data) => data.status === "parsed" || data.status === "failed"
+      ).then((data) => {
+        if (data.status === "failed") {
+          throw new Error(data.error || "Parsing failed");
+        }
+      });
+
       navigate("/dashboard");
     } catch (err) {
       const detail =
@@ -39,6 +54,7 @@ function Upload() {
       setError(`Upload failed: ${detail}`);
     } finally {
       setLoading(false);
+      setStage("");
     }
   };
 
@@ -80,7 +96,7 @@ function Upload() {
               disabled={loading}
               className="w-full bg-accent-600 hover:bg-accent-700 disabled:opacity-60 text-white p-3 rounded-lg font-semibold transition"
             >
-              {loading ? "Uploading..." : "Upload"}
+              {loading ? stage || "Uploading..." : "Upload"}
             </button>
           </form>
         </div>
