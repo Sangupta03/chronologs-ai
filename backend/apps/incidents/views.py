@@ -1,30 +1,52 @@
-
-# Create your views here.
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.db.models import Count
+from django.db.models.functions import TruncDay
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django_filters.rest_framework import DjangoFilterBackend
+
+from .filters import IncidentFilter
 from .models import Incident
+from .serializers import IncidentSerializer
 
 
-class IncidentListView(APIView):
+class IncidentListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = IncidentSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = IncidentFilter
+
+    def get_queryset(self):
+        return Incident.objects.filter(
+            log_file__user=self.request.user
+        ).order_by("-created_at")
+
+
+class IncidentStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        incidents = Incident.objects.filter(
-            log_file__user=request.user
-        ).order_by("-created_at")
+        queryset = Incident.objects.filter(log_file__user=request.user)
 
-        data = [
+        severity_counts = dict(
+            queryset.values_list("severity").annotate(count=Count("id"))
+        )
+
+        daily_counts = (
+            queryset
+            .annotate(day=TruncDay("created_at"))
+            .values("day")
+            .annotate(count=Count("id"))
+            .order_by("day")
+        )
+
+        return Response(
             {
-                "id": str(i.id),
-                "title": i.title,
-                "severity": i.severity,
-                "start_time": i.start_time,
-                "end_time": i.end_time,
-                "event_count": i.event_count,
-                "summary": i.summary,
+                "severity_counts": severity_counts,
+                "incidents_over_time": [
+                    {"date": d["day"].date().isoformat(), "count": d["count"]}
+                    for d in daily_counts
+                ],
             }
-            for i in incidents
-        ]
-
-        return Response(data)
+        )
