@@ -109,3 +109,10 @@ services:
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://chronologs-backend.onrender.com/api  # update if Render assigns a different hostname
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
