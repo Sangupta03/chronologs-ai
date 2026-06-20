@@ -1,0 +1,14 @@
+2026-06-07 08:00:00 ERROR payment-service Database connection timeout while processing transaction
+2026-06-07 08:00:01 ERROR payment-service Database connection pool exhausted
+2026-06-07 08:00:02 ERROR payment-service Unable to reach primary database replica
+2026-06-07 08:00:03 ERROR auth-service Authentication token has expired for user session
+2026-06-07 08:00:04 ERROR auth-service Invalid credentials provided during login attempt
+2026-06-07 08:00:05 ERROR auth-service JWT signature verification failed
+2026-06-07 08:00:06 WARN storage-service Disk usage exceeded 90 percent threshold
+2026-06-07 08:00:07 WARN storage-service Running low on available disk space
+2026-06-07 08:00:08 CRITICAL storage-service Disk is full, cannot write new files
+2026-06-07 08:00:09 ERROR network-service Connection refused while contacting upstream service
+2026-06-07 08:00:10 ERROR network-service Network unreachable, request timed out
+2026-06-07 08:00:11 INFO gateway-service Request completed successfully in 45ms
+2026-06-07 08:00:12 INFO gateway-service Health check passed
+2026-06-07 08:00:13 INFO gateway-service Request completed successfully in 32ms

@@ -1,0 +1,8 @@
+[INFO] 2026-06-03T10:00:00 user-service: Profile updated
+[ERROR] 2026-06-03T10:00:01 user-service: Failed to update profile, database locked
+[ERROR] 2026-06-03T10:00:02 user-service: Failed to update profile, database locked
+[WARN] 2026-06-03T10:00:03 user-service: Slow query detected on users table
+[ERROR] 2026-06-03T10:00:04 user-service: Failed to update profile, database locked
+[INFO] 2026-06-03T10:00:05 user-service: Profile updated
+[CRITICAL] 2026-06-03T10:00:06 user-service: Database deadlock detected
+[INFO] 2026-06-03T10:00:07 user-service: Profile updated

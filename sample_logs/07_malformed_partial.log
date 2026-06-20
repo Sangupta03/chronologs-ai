@@ -1,0 +1,9 @@
+2026-06-06 14:00:00 ERROR billing-service Invoice generation failed
+this line is not a valid log entry at all
+2026-06-06 14:00:01 ERROR billing-service Invoice generation failed
+###CORRUPTED_BINARY_GARBAGE###
+2026-06-06 14:00:02 ERROR billing-service Invoice generation failed
+random text with no timestamp or level
+2026-06-06 14:00:03 INFO billing-service Invoice generation retried successfully
+not-a-real-timestamp ERROR billing-service Malformed timestamp test
+2026-13-99 25:99:99 ERROR billing-service Invalid date components, fails timestamp parsing

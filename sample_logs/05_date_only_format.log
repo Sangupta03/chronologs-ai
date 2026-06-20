@@ -1,0 +1,6 @@
+INFO 2026-06-04 search-service Index rebuild started
+ERROR 2026-06-04 search-service Out of memory error during indexing
+ERROR 2026-06-04 search-service Out of memory error during indexing
+WARN 2026-06-04 search-service Index rebuild taking longer than expected
+ERROR 2026-06-04 search-service Out of memory error during indexing
+INFO 2026-06-04 search-service Index rebuild completed

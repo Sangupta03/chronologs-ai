@@ -1,0 +1,10 @@
+2026-06-01 09:00:01 INFO payment-service Request received
+2026-06-01 09:00:02 ERROR payment-service Database connection timeout
+2026-06-01 09:00:03 ERROR payment-service Database connection timeout
+2026-06-01 09:00:04 ERROR payment-service Database connection failed
+2026-06-01 09:00:05 INFO auth-service Login success
+2026-06-01 09:00:06 ERROR payment-service Connection refused by database host
+2026-06-01 09:00:07 INFO auth-service Login success
+2026-06-01 09:00:08 WARN auth-service Password attempt failed, retrying
+2026-06-01 09:00:09 INFO payment-service Retry succeeded
+2026-06-01 09:00:10 INFO payment-service Request completed successfully

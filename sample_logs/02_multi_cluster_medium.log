@@ -1,0 +1,45 @@
+2026-06-01 09:00:00 ERROR payment-service Database connection timeout
+2026-06-01 09:00:01 ERROR auth-service Invalid JWT signature
+2026-06-01 09:00:03 WARN inventory-service Cache miss for key product_catalog
+2026-06-01 09:00:05 ERROR payment-service Database connection timeout
+2026-06-01 09:00:10 ERROR auth-service Authentication token expired
+2026-06-01 09:00:15 WARN inventory-service Cache refresh took longer than expected
+2026-06-01 09:00:16 ERROR payment-service Database connection timeout
+2026-06-01 09:00:17 ERROR auth-service Authentication token expired
+2026-06-01 09:00:19 WARN inventory-service Cache miss for key product_catalog
+2026-06-01 09:00:24 ERROR payment-service Database connection timeout
+2026-06-01 09:00:29 ERROR auth-service Token validation failed
+2026-06-01 09:00:31 WARN inventory-service Cache refresh took longer than expected
+2026-06-01 09:00:36 ERROR payment-service Database connection failed
+2026-06-01 09:00:37 ERROR auth-service Authentication token expired
+2026-06-01 09:00:41 WARN inventory-service Stale cache entry detected
+2026-06-01 09:00:44 ERROR payment-service Database connection timeout
+2026-06-01 09:00:46 ERROR auth-service Invalid JWT signature
+2026-06-01 09:00:47 WARN inventory-service Cache miss for key product_catalog
+2026-06-01 09:00:51 ERROR payment-service Database connection timeout
+2026-06-01 09:00:54 ERROR auth-service Invalid JWT signature
+2026-06-01 09:00:59 WARN inventory-service Stale cache entry detected
+2026-06-01 09:01:00 ERROR payment-service Connection refused by database host
+2026-06-01 09:01:05 ERROR auth-service Authentication token expired
+2026-06-01 09:01:09 WARN inventory-service Cache miss for key product_catalog
+2026-06-01 09:01:14 ERROR payment-service Database connection failed
+2026-06-01 09:01:19 ERROR auth-service Invalid JWT signature
+2026-06-01 09:01:24 WARN inventory-service Cache miss for key product_catalog
+2026-06-01 09:01:25 ERROR payment-service Database connection timeout
+2026-06-01 09:01:27 ERROR auth-service Invalid JWT signature
+2026-06-01 09:01:28 WARN inventory-service Cache miss for key product_catalog
+2026-06-01 09:01:29 ERROR payment-service Connection refused by database host
+2026-06-01 09:01:32 ERROR auth-service Token validation failed
+2026-06-01 09:01:35 WARN inventory-service Cache miss for key product_catalog
+2026-06-01 09:01:38 ERROR payment-service Database connection failed
+2026-06-01 09:01:40 ERROR auth-service Invalid JWT signature
+2026-06-01 09:01:41 WARN inventory-service Cache miss for key product_catalog
+2026-06-01 09:01:46 ERROR payment-service Database connection timeout
+2026-06-01 09:01:48 ERROR auth-service Token validation failed
+2026-06-01 09:01:52 WARN inventory-service Stale cache entry detected
+2026-06-01 09:01:57 ERROR payment-service Database connection timeout
+2026-06-01 09:02:00 ERROR auth-service Authentication token expired
+2026-06-01 09:02:02 WARN inventory-service Cache miss for key product_catalog
+2026-06-01 09:02:05 ERROR payment-service Connection refused by database host
+2026-06-01 09:02:08 ERROR auth-service Authentication token expired
+2026-06-01 09:02:10 WARN inventory-service Stale cache entry detected
