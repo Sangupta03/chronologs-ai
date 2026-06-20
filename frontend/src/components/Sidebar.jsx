@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Activity, LayoutDashboard, Upload as UploadIcon, AlertTriangle, LogOut, Sun, Moon } from "lucide-react";
-import { useTheme } from "../context/ThemeContext";
+import { Activity, LayoutDashboard, Upload as UploadIcon, AlertTriangle, Search as SearchIcon, LogOut, Sun, Moon } from "lucide-react";
+import { useTheme } from "../context/useTheme";
 import { logout } from "../services/auth";
 
 function Sidebar() {
@@ -15,8 +15,8 @@ function Sidebar() {
         : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
     }`;
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 
@@ -43,6 +43,11 @@ function Sidebar() {
         <Link to="/incidents" className={linkClass("/incidents")}>
           <AlertTriangle size={18} />
           Incidents
+        </Link>
+
+        <Link to="/search" className={linkClass("/search")}>
+          <SearchIcon size={18} />
+          Search
         </Link>
       </nav>
 

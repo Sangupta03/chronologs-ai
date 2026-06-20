@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Upload from "./pages/Upload";
 import Dashboard from "./pages/Dashboard";
 import Incidents from "./pages/Incidents";
+import Search from "./pages/Search";
 import { ThemeProvider } from "./context/ThemeContext";
 import { isAuthenticated } from "./services/auth";
 
@@ -31,6 +32,10 @@ function App() {
           <Route
             path="/incidents"
             element={<ProtectedRoute><Incidents /></ProtectedRoute>}
+          />
+          <Route
+            path="/search"
+            element={<ProtectedRoute><Search /></ProtectedRoute>}
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
