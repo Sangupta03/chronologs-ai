@@ -102,34 +102,38 @@ sample_logs/     → example .log files for trying out each feature
 
 ---
 
-## ⚙️ Setup
+## ⚙️ Running Locally
 
-### Option A — Docker (recommended, brings up everything at once)
+### Option A — Docker (easiest, brings up everything at once)
 
 ```bash
 docker-compose up --build
 ```
 
-This starts Redis, the Django backend, a Celery worker, and the frontend together. Backend on `:8000`, frontend on `:5173`.
+Starts Redis, the Django backend, a Celery worker, and the React frontend together. Backend at `localhost:8000`, frontend at `localhost:5173`.
 
 ### Option B — Run services manually
 
-**Backend**
+Create `backend/.env`:
+
+```env
+GEMINI_API_KEY=your-gemini-api-key
+```
+
+**Backend** (needs Redis running locally first)
 
 ```bash
 cd backend
 python -m venv venv
 venv\Scripts\activate          # Windows
+# source venv/bin/activate     # macOS/Linux
 pip install -r requirements.txt
-
-# create backend/.env with at least:
-# GEMINI_API_KEY=your-key-here
 
 python manage.py migrate
 python manage.py runserver
 ```
 
-You'll also need Redis running locally and a Celery worker for log analysis to actually process:
+**Celery worker** (in a second terminal, from `backend/`)
 
 ```bash
 celery -A config worker --pool=solo -l info
@@ -142,6 +146,51 @@ cd frontend
 npm install
 npm run dev
 ```
+
+---
+
+## 🚀 Production Deployment
+
+### Backend → Railway
+
+1. Create a new project in [Railway](https://railway.app).
+2. Add a **PostgreSQL** plugin and a **Redis** plugin from the Railway dashboard — Railway will inject the connection strings automatically.
+3. Add a **new service** → "Deploy from GitHub repo" → select this repo → set **Root Directory** to `backend`. Railway picks up `railway.toml` and the Dockerfile automatically.
+4. Set these environment variables in the Railway service settings:
+
+   | Variable | Value |
+   |---|---|
+   | `DJANGO_SETTINGS_MODULE` | `config.settings.prod` |
+   | `DJANGO_SECRET_KEY` | any long random string |
+   | `DB_NAME` | from Railway PostgreSQL plugin |
+   | `DB_USER` | from Railway PostgreSQL plugin |
+   | `DB_PASSWORD` | from Railway PostgreSQL plugin |
+   | `DB_HOST` | from Railway PostgreSQL plugin |
+   | `DB_PORT` | from Railway PostgreSQL plugin |
+   | `CELERY_BROKER_URL` | from Railway Redis plugin |
+   | `CELERY_RESULT_BACKEND` | from Railway Redis plugin |
+   | `GEMINI_API_KEY` | your Gemini API key |
+   | `ALLOWED_HOSTS` | `your-project.up.railway.app` |
+   | `CORS_ALLOWED_ORIGINS` | `https://your-frontend.vercel.app` |
+
+5. **Celery worker** — add a second Railway service from the same repo, same root directory (`backend`), but override the start command to:
+   ```
+   celery -A config worker --pool=solo -l info
+   ```
+   Give it the same environment variables (no `ALLOWED_HOSTS` / `CORS_ALLOWED_ORIGINS` needed for the worker).
+
+### Frontend → Vercel
+
+1. Import the repo in [Vercel](https://vercel.com).
+2. Set **Root Directory** to `frontend`.
+3. Vercel auto-detects Vite — the default build settings work (`npm run build`, output `dist`).
+4. Add one environment variable:
+
+   | Variable | Value |
+   |---|---|
+   | `VITE_API_URL` | `https://your-project.up.railway.app/api` |
+
+5. Deploy. The `vercel.json` in `frontend/` handles SPA routing (all paths → `index.html`).
 
 ---
 
