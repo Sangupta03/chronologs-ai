@@ -4,7 +4,10 @@ from .base import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = [h for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h] + ["healthcheck.railway.app"]
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h.strip()] + [
+    "healthcheck.railway.app",
+    ".up.railway.app",  # matches all Railway service domains
+]
 
 CORS_ALLOW_ALL_ORIGINS = os.environ.get("CORS_ALLOW_ALL_ORIGINS", "False") == "True"
 
